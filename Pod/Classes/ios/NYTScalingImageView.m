@@ -71,6 +71,12 @@
     [self centerScrollViewContents];
 }
 
+- (void)setContentSize:(CGSize)size {
+    [super setContentSize:size];
+    
+    [self centerScrollViewContents];
+}
+
 - (void)setupImageScrollView {
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.showsVerticalScrollIndicator = NO;
