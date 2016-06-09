@@ -14,6 +14,14 @@
 @protocol NYTPhoto;
 @protocol NYTPhotoViewControllerDelegate;
 
+/// Informal protocol
+@protocol NYTPhotoViewController <NSObject>
+
+@optional
+- (void)photoViewControllerIsVisible:(BOOL)visible;
+
+@end
+
 /**
  *  `NYTPhotoViewController` observes this notification. It expects an `id <NYTPhoto>` object as the object of the notification.
  */
@@ -22,7 +30,7 @@ extern NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification;
 /**
  *  The view controller controlling the display of a single photo object.
  */
-@interface NYTPhotoViewController : UIViewController <NYTPhotoContainer>
+@interface NYTPhotoViewController : UIViewController <NYTPhotoContainer, NYTPhotoViewController>
 
 /**
  *  The internal scaling image view used to display the photo.
