@@ -10,6 +10,22 @@
 #import "NYTPhoto.h"
 #import "NYTScalingImageView.h"
 
+static CGAffineTransform DeviceOrientationToAffineTransform(UIDeviceOrientation orientation)
+{
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+        transform = CGAffineTransformMakeRotation(0);
+    } else if (orientation == UIDeviceOrientationLandscapeLeft) {
+        transform = CGAffineTransformMakeRotation(M_PI / 2);
+    } else if (orientation == UIDeviceOrientationLandscapeRight) {
+        transform = CGAffineTransformMakeRotation(-M_PI / 2);
+    }
+    
+    return transform;
+}
+
+
 NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhotoViewControllerPhotoImageUpdatedNotification";
 
 @interface NYTPhotoViewController () <UIScrollViewDelegate>
@@ -32,6 +48,7 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     _scalingImageView.delegate = nil;
     
     [_notificationCenter removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - UIViewController
@@ -54,6 +71,19 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     [self.view addGestureRecognizer:self.doubleTapGestureRecognizer];
     [self.view addGestureRecognizer:self.longPressGestureRecognizer];
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    UIDevice *device = [UIDevice currentDevice];
+    UIDeviceOrientation deviceOrientation = device.orientation;
+    CGAffineTransform transform = DeviceOrientationToAffineTransform(deviceOrientation);
+    
+    [UIView performWithoutAnimation:^{
+        self.scalingImageView.transform = transform;
+    }];
+}
+
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
@@ -84,6 +114,8 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
         _notificationCenter = notificationCenter;
         
         [self setupGestureRecognizers];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     }
     
     return self;
@@ -168,6 +200,22 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     if (scrollView.zoomScale == scrollView.minimumZoomScale) {
         scrollView.panGestureRecognizer.enabled = NO;
     }
+}
+
+#pragma mark - UIDeviceOrientationDidChangeNotification
+
+- (void)deviceOrientationDidChange:(NSNotification *)notification {
+    UIDevice *device = (id)notification.object;
+    if (!device) {
+        return;
+    }
+    
+    UIDeviceOrientation deviceOrientation = device.orientation;
+    CGAffineTransform transform = DeviceOrientationToAffineTransform(deviceOrientation);
+    
+    [UIView animateWithDuration:0.2f animations:^{
+        self.scalingImageView.transform = transform;
+    }];
 }
 
 @end
