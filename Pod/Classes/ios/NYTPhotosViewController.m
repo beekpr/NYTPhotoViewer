@@ -175,7 +175,7 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
     else {
         initialPhotoViewController = [self newPhotoViewControllerForPhoto:self.dataSource[0]];
     }
-    [initialPhotoViewController photoViewControllerIsVisible:YES];
+    [initialPhotoViewController photoViewControllerIsCurrentlyDisplayed:YES];
     [self setCurrentlyDisplayedViewController:initialPhotoViewController animated:NO];
     
     [self.pageViewController.view addGestureRecognizer:self.panGestureRecognizer];
@@ -439,13 +439,13 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
         [self updateOverlayInformation];
         
         for (NYTPhotoViewController *previousViewController in previousViewControllers) {
-            if ([previousViewController respondsToSelector:@selector(photoViewControllerIsVisible:)]) {
-                [previousViewController photoViewControllerIsVisible:NO];
+            if ([previousViewController respondsToSelector:@selector(photoViewControllerIsCurrentlyDisplayed:)]) {
+                [previousViewController photoViewControllerIsCurrentlyDisplayed:NO];
             }
         }
         
         NYTPhotoViewController *photoViewController = pageViewController.viewControllers.firstObject;
-        [photoViewController photoViewControllerIsVisible:YES];
+        [photoViewController photoViewControllerIsCurrentlyDisplayed:YES];
         [self didDisplayPhoto:photoViewController.photo];
     }
 }

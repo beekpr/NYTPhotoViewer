@@ -18,7 +18,7 @@
 @protocol NYTPhotoViewController <NSObject>
 
 @optional
-- (void)photoViewControllerIsVisible:(BOOL)visible;
+- (void)photoViewControllerIsCurrentlyDisplayed:(BOOL)displayed;
 
 @end
 

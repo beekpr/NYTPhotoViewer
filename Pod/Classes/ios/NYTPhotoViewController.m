@@ -31,7 +31,7 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
 @interface NYTPhotoViewController () <UIScrollViewDelegate>
 
 @property (nonatomic) id <NYTPhoto> photo;
-@property(nonatomic) BOOL controllerIsVisible;
+@property(nonatomic, getter=isCurrentlyDisplayed) BOOL currentlyDisplayed;
 
 @property (nonatomic) NYTScalingImageView *scalingImageView;
 @property (nonatomic) UIView *loadingView;
@@ -215,7 +215,7 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     CGAffineTransform transform = DeviceOrientationToAffineTransform(deviceOrientation);
     
     
-    if (!self.controllerIsVisible) {
+    if (!self.isCurrentlyDisplayed) {
         [UIView performWithoutAnimation:^{
             self.scalingImageView.alpha = 0.0;
             self.scalingImageView.transform = transform;
@@ -230,8 +230,8 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
 
 #pragma mark - NYTPhotoViewController informal protocol
 
-- (void)photoViewControllerIsVisible:(BOOL)visible {
-    self.controllerIsVisible = visible;
+- (void)photoViewControllerIsCurrentlyDisplayed:(BOOL)visible {
+    self.currentlyDisplayed = visible;
 }
 
 @end
