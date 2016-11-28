@@ -77,7 +77,7 @@ extern NSString * const NYTPhotosViewControllerDidDismissNotification;
  *
  *  @return A fully initialized object.
  */
-- (instancetype)initWithPhotos:(NSArray *)photos initialPhoto:(id <NYTPhoto>)initialPhoto NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithPhotos:(NSArray *)photos initialPhoto:(id <NYTPhoto>)initialPhoto delegate:(id <NYTPhotosViewControllerDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 /**
  *  Displays the specified photo. Can be called before the view controller is displayed. Calling with a photo not contained within the data source has no effect.
@@ -146,6 +146,8 @@ extern NSString * const NYTPhotosViewControllerDidDismissNotification;
  */
 - (UIView *)photosViewController:(NYTPhotosViewController *)photosViewController loadingViewForPhoto:(id <NYTPhoto>)photo;
 
+- (UIView *)photosViewController:(NYTPhotosViewController *)photosViewController iconViewForPhoto:(id <NYTPhoto>)photo;
+
 /**
  *  Returns the view from which to animate for a given object conforming to the `NYTPhoto` protocol.
  *
@@ -166,6 +168,16 @@ extern NSString * const NYTPhotosViewControllerDidDismissNotification;
  *  @return `YES` if the long press was handled by the client, `NO` if the default `UIMenuController` with a Copy action is desired.
  */
 - (BOOL)photosViewController:(NYTPhotosViewController *)photosViewController handleLongPressForPhoto:(id <NYTPhoto>)photo withGestureRecognizer:(UILongPressGestureRecognizer *)longPressGestureRecognizer;
+
+/**
+ * Called when a photo is tapped.
+ *
+ *  @param photosViewController     The `NYTPhotosViewController` instance that sent the delegate message.
+ *  @param photo                    The photo being displayed that was tapped.
+ *  @param tapGestureRecognizer     The gesture recognizer that detected the tap.
+ *  @param dismissHandler           The dissmiss handler block. If this block is provided and @c shouldDismiss is equal @c YES the @c photosViewController will dismiss itself. 
+ */
+- (void)photosViewController:(NYTPhotosViewController *)photosViewController singleTapForPhoto:(id <NYTPhoto>)photo withGestureRecognizer:(UITapGestureRecognizer *)tapGestureRecognizer dismissHandler:(void (^)(BOOL shouldDismiss))handler;
 
 /**
  *  Called when the action button is tapped.

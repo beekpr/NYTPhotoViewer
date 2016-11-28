@@ -35,8 +35,10 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
 
 @property (nonatomic) NYTScalingImageView *scalingImageView;
 @property (nonatomic) UIView *loadingView;
+@property (nonatomic) UIView *iconView;
 @property (nonatomic) NSNotificationCenter *notificationCenter;
 @property (nonatomic) UITapGestureRecognizer *doubleTapGestureRecognizer;
+@property (nonatomic) UITapGestureRecognizer *singleTapGestureRecognizer;
 @property (nonatomic) UILongPressGestureRecognizer *longPressGestureRecognizer;
 
 @end
@@ -55,7 +57,7 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
 #pragma mark - UIViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    return [self initWithPhoto:nil loadingView:nil notificationCenter:nil];
+    return [self initWithPhoto:nil loadingView:nil iconView:nil notificationCenter:nil];
 }
 
 - (void)viewDidLoad {
@@ -69,7 +71,11 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     [self.view addSubview:self.loadingView];
     [self.loadingView sizeToFit];
     
+    [self.view addSubview:self.iconView];
+    [self.iconView sizeToFit];
+    
     [self.view addGestureRecognizer:self.doubleTapGestureRecognizer];
+    [self.view addGestureRecognizer:self.singleTapGestureRecognizer];
     [self.view addGestureRecognizer:self.longPressGestureRecognizer];
 }
 
@@ -93,11 +99,14 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     
     [self.loadingView sizeToFit];
     self.loadingView.center = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
+    
+    [self.iconView sizeToFit];
+    self.iconView.center = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
 }
 
 #pragma mark - NYTPhotoViewController
 
-- (instancetype)initWithPhoto:(id <NYTPhoto>)photo loadingView:(UIView *)loadingView notificationCenter:(NSNotificationCenter *)notificationCenter {
+- (instancetype)initWithPhoto:(id <NYTPhoto>)photo loadingView:(UIView *)loadingView iconView:(UIView *)iconView notificationCenter:(NSNotificationCenter *)notificationCenter {
     self = [super initWithNibName:nil bundle:nil];
     
     if (self) {
@@ -108,8 +117,13 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
         _scalingImageView = [[NYTScalingImageView alloc] initWithImage:photoImage frame:CGRectZero];
         _scalingImageView.delegate = self;
         
+        _iconView = iconView;
+        
         if (!photo.image) {
             [self setupLoadingView:loadingView];
+            _iconView.hidden = YES;
+        } else {
+            _iconView.hidden = NO;
         }
         
         _notificationCenter = notificationCenter;
@@ -144,6 +158,8 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     if (image) {
         [self.loadingView removeFromSuperview];
         self.loadingView = nil;
+        
+        self.iconView.hidden = NO;
     }
 }
 
@@ -153,7 +169,20 @@ NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification = @"NYTPhot
     self.doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didDoubleTapWithGestureRecognizer:)];
     self.doubleTapGestureRecognizer.numberOfTapsRequired = 2;
     
+    self.singleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didSigleTapWithGestureRecognizer:)];
+    self.singleTapGestureRecognizer.numberOfTapsRequired = 1;
+    
+    [self.singleTapGestureRecognizer requireGestureRecognizerToFail:self.doubleTapGestureRecognizer];
+    
     self.longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(didLongPressWithGestureRecognizer:)];
+}
+
+- (void)didSigleTapWithGestureRecognizer:(UITapGestureRecognizer *)recognizer {
+    if ([self.delegate respondsToSelector:@selector(photoViewController:didSigleTapWithGestureRecognizer:)]) {
+        if (recognizer.state == UIGestureRecognizerStateEnded) {
+            [self.delegate photoViewController:self didSigleTapWithGestureRecognizer:recognizer];
+        }
+    }
 }
 
 - (void)didDoubleTapWithGestureRecognizer:(UITapGestureRecognizer *)recognizer {

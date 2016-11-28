@@ -57,11 +57,12 @@ extern NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification;
  *
  *  @param photo              The photo object that this view controller manages.
  *  @param loadingView        The view to display while the photo's image loads. This view will be hidden when the image loads.
+ *  @param iconView           The view to display on top of the image as an icon. This view will be shown only after the image loads. Optional parameter and can be @c nil
  *  @param notificationCenter The notification center on which to observe the `NYTPhotoViewControllerPhotoImageUpdatedNotification`.
  *
  *  @return A fully initialized object.
  */
-- (instancetype)initWithPhoto:(id <NYTPhoto>)photo loadingView:(UIView *)loadingView notificationCenter:(NSNotificationCenter *)notificationCenter NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithPhoto:(id <NYTPhoto>)photo loadingView:(UIView *)loadingView iconView:(UIView *)iconView notificationCenter:(NSNotificationCenter *)notificationCenter NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -76,5 +77,7 @@ extern NSString * const NYTPhotoViewControllerPhotoImageUpdatedNotification;
  *  @param longPressGestureRecognizer The long press gesture recognizer that recognized the long press.
  */
 - (void)photoViewController:(NYTPhotoViewController *)photoViewController didLongPressWithGestureRecognizer:(UILongPressGestureRecognizer *)longPressGestureRecognizer;
+
+- (void)photoViewController:(NYTPhotoViewController *)photoViewController didSigleTapWithGestureRecognizer:(UITapGestureRecognizer *)sigleTapWithGestureRecognizer;
 
 @end

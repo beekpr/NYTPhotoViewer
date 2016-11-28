@@ -131,13 +131,14 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
 #pragma mark - NYTPhotosViewController
 
 - (instancetype)initWithPhotos:(NSArray *)photos {
-    return [self initWithPhotos:photos initialPhoto:photos.firstObject];
+    return [self initWithPhotos:photos initialPhoto:photos.firstObject delegate:nil];
 }
 
-- (instancetype)initWithPhotos:(NSArray *)photos initialPhoto:(id <NYTPhoto>)initialPhoto {
+- (instancetype)initWithPhotos:(NSArray *)photos initialPhoto:(id <NYTPhoto>)initialPhoto delegate:(id <NYTPhotosViewControllerDelegate>)delegate {
     self = [super initWithNibName:nil bundle:nil];
     
     if (self) {
+        _delegate = delegate;
         _dataSource = [[NYTPhotosDataSource alloc] initWithPhotos:photos];
         _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPanWithGestureRecognizer:)];
         _singleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didSingleTapWithGestureRecognizer:)];
@@ -361,7 +362,12 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
             loadingView = [self.delegate photosViewController:self loadingViewForPhoto:photo];
         }
         
-        NYTPhotoViewController *photoViewController = [[NYTPhotoViewController alloc] initWithPhoto:photo loadingView:loadingView notificationCenter:self.notificationCenter];
+        UIView *iconView = nil;
+        if ([self.delegate respondsToSelector:@selector(photosViewController:iconViewForPhoto:)]) {
+            iconView = [self.delegate photosViewController:self iconViewForPhoto:photo];
+        }
+        
+        NYTPhotoViewController *photoViewController = [[NYTPhotoViewController alloc] initWithPhoto:photo loadingView:loadingView iconView:iconView notificationCenter:self.notificationCenter];
         photoViewController.delegate = self;
         [self.singleTapGestureRecognizer requireGestureRecognizerToFail:photoViewController.doubleTapGestureRecognizer];
         
@@ -417,6 +423,18 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
         targetRect.origin = [longPressGestureRecognizer locationInView:longPressGestureRecognizer.view];
         [menuController setTargetRect:targetRect inView:longPressGestureRecognizer.view];
         [menuController setMenuVisible:YES animated:YES];
+    }
+}
+
+- (void)photoViewController:(NYTPhotoViewController *)photoViewController didSigleTapWithGestureRecognizer:(UITapGestureRecognizer *)sigleTapWithGestureRecognizer {
+    if ([self.delegate respondsToSelector:@selector(photosViewController:singleTapForPhoto:withGestureRecognizer:dismissHandler:)]) {
+        __weak typeof(self) weakSelf = self;
+        [self.delegate photosViewController:self singleTapForPhoto:photoViewController.photo withGestureRecognizer:sigleTapWithGestureRecognizer dismissHandler:^(BOOL shouldDismiss) {
+            __strong __typeof(weakSelf) strongSelf = weakSelf;
+            if (shouldDismiss) {
+                [strongSelf doneButtonTapped:nil];
+            }
+        }];
     }
 }
 
