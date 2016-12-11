@@ -38,4 +38,9 @@
  */
 @property (nonatomic, readonly) NSAttributedString *attributedCaptionCredit;
 
+/**
+ * Returns the status whether the item is shareable or not
+ */
+@property (nonatomic, readonly) BOOL isNotShareable;
+
 @end

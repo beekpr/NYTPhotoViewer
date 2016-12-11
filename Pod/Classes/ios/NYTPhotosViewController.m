@@ -23,6 +23,23 @@ NSString * const NYTPhotosViewControllerDidDismissNotification = @"NYTPhotosView
 static const CGFloat NYTPhotosViewControllerOverlayAnimationDuration = 0.2;
 static const CGFloat NYTPhotosViewControllerInterPhotoSpacing = 16.0;
 static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0, -3, 0};
+static const NSInteger NYTPhotosViewControllerDefaultRightBarButtonItemTag = 23425;
+
+@interface UIBarButtonItem (NYTPhotosViewController)
+
++ (instancetype)NYT_barButtonItemForSharingWithTarget:(id)target action:(SEL)action;
+
+@end
+
+@implementation UIBarButtonItem (NYTPhotosViewController)
+
++ (instancetype)NYT_barButtonItemForSharingWithTarget:(id)target action:(SEL)action {
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:target action:action];
+    item.tag = NYTPhotosViewControllerDefaultRightBarButtonItemTag;
+    return item;
+}
+
+@end
 
 @interface NYTPhotosViewController () <UIPageViewControllerDataSource, UIPageViewControllerDelegate, NYTPhotoViewControllerDelegate>
 
@@ -152,8 +169,7 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
         _overlayView = [[NYTPhotosOverlayView alloc] initWithFrame:CGRectMake(0, 0, NYTPhotoCaptionViewHorizontalMargin * 2.0, 0)];
         _overlayView.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"NYTPhotoViewerCloseButtonX"] landscapeImagePhone:[UIImage imageNamed:@"NYTPhotoViewerCloseButtonXLandscape"] style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonTapped:)];
         _overlayView.leftBarButtonItem.imageInsets = NYTPhotosViewControllerCloseButtinImageInsets;
-        _overlayView.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonTapped:)];
-        
+        _overlayView.rightBarButtonItem = [UIBarButtonItem NYT_barButtonItemForSharingWithTarget:self action:@selector(actionButtonTapped:)];
         _notificationCenter = [[NSNotificationCenter alloc] init];
         
         [self setupPageViewControllerWithInitialPhoto:initialPhoto];
@@ -215,6 +231,16 @@ static const UIEdgeInsets NYTPhotosViewControllerCloseButtinImageInsets = {3, 0,
     
     if (!captionView) {
         captionView = [[NYTPhotoCaptionView alloc] initWithAttributedTitle:self.currentlyDisplayedPhoto.attributedCaptionTitle attributedSummary:self.currentlyDisplayedPhoto.attributedCaptionSummary attributedCredit:self.currentlyDisplayedPhoto.attributedCaptionCredit];
+    }
+    
+    id <NYTPhoto> photo = self.currentlyDisplayedPhoto;
+    if (photo.isNotShareable) {
+        if (self.overlayView.rightBarButtonItem.tag == NYTPhotosViewControllerDefaultRightBarButtonItemTag) {
+            self.overlayView.rightBarButtonItem = nil;
+        }
+    }
+    else if (!photo.isNotShareable && self.overlayView.rightBarButtonItem == nil) {
+        self.overlayView.rightBarButtonItem = [UIBarButtonItem NYT_barButtonItemForSharingWithTarget:self action:@selector(actionButtonTapped:)];
     }
     
     self.overlayView.captionView = captionView;
