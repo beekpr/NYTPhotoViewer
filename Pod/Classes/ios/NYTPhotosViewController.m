@@ -165,9 +165,13 @@ static const NSInteger NYTPhotosViewControllerDefaultRightBarButtonItemTag = 234
         self.transitioningDelegate = _transitionController;
         self.modalPresentationCapturesStatusBarAppearance = YES;
         
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        UIImage *closeButtonImage = [UIImage imageNamed:@"NYTPhotoViewerCloseButtonX" inBundle:classBundle compatibleWithTraitCollection:nil];
+        UIImage *closeButtonLandscapeImage = [UIImage imageNamed:@"NYTPhotoViewerCloseButtonXLandscape" inBundle:classBundle compatibleWithTraitCollection:nil];
+        
         // iOS 7 has an issue with constraints that could evaluate to be negative, so we set the width to the margins' size.
         _overlayView = [[NYTPhotosOverlayView alloc] initWithFrame:CGRectMake(0, 0, NYTPhotoCaptionViewHorizontalMargin * 2.0, 0)];
-        _overlayView.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"NYTPhotoViewerCloseButtonX"] landscapeImagePhone:[UIImage imageNamed:@"NYTPhotoViewerCloseButtonXLandscape"] style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonTapped:)];
+        _overlayView.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:closeButtonImage landscapeImagePhone:closeButtonLandscapeImage style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonTapped:)];
         _overlayView.leftBarButtonItem.imageInsets = NYTPhotosViewControllerCloseButtinImageInsets;
         _overlayView.rightBarButtonItem = [UIBarButtonItem NYT_barButtonItemForSharingWithTarget:self action:@selector(actionButtonTapped:)];
         _notificationCenter = [[NSNotificationCenter alloc] init];
